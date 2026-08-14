@@ -118,7 +118,7 @@ async function main() {
     topics,
   };
 
-  const outPath = path.join(process.cwd(), "data", `${dateStr}.json`);
+  const outPath = path.join(process.cwd(), "public", "data", `${dateStr}.json`);
   await writeFile(outPath, JSON.stringify(output, null, 2), "utf-8");
   console.log(`トピック数: ${topics.length}`);
   console.log(`出力先: ${outPath}`);

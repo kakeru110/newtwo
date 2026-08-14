@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const MODEL = "claude-sonnet-5";
+const MODEL = "claude-opus-5";
 
 const client = new Anthropic(); // ANTHROPIC_API_KEY を環境変数から読む
 

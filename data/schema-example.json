@@ -8,6 +8,7 @@
       "topicId": "2026-08-14-001",
       "topicTitle": "防衛費増額を巡る来年度予算編成",
       "facts": "政府は来年度予算の概算要求において防衛費のさらなる増額を検討していることが関係者への取材で分かった。財源としては国債発行と増税の両論が政府内で議論されている。正式な予算案は年末の閣議決定を経て国会に提出される見通し。",
+      "developing": false,
       "issues": [
         {
           "issue": "防衛費増額の財源をどう確保すべきか",
@@ -32,6 +33,7 @@
           }
         }
       ],
+      "claims": [],
       "sourceLinks": [
         { "source": "NHKニュース", "url": "https://www3.nhk.or.jp/news/example001.html" },
         { "source": "読売新聞", "url": "https://www.yomiuri.co.jp/example/001/" },
@@ -46,6 +48,7 @@
       "topicId": "2026-08-14-002",
       "topicTitle": "生成AI利用に関する著作権ガイドライン改定",
       "facts": "文化庁は生成AIと著作権の関係を整理したガイドラインの改定案を公表した。AI学習データの利用範囲や、生成物が既存著作物と類似した場合の権利侵害の判断基準について、具体例を交えて示している。パブリックコメントを経て年内の正式決定を目指す。",
+      "developing": false,
       "issues": [
         {
           "issue": "AI学習データの利用をどこまで許容すべきか",
@@ -59,11 +62,35 @@
           }
         }
       ],
+      "claims": [],
       "sourceLinks": [
         { "source": "日本経済新聞", "url": "https://www.nikkei.com/article/example002/" },
         { "source": "ITmedia", "url": "https://www.itmedia.co.jp/news/example/002.html" },
         { "source": "朝日新聞", "url": "https://www.asahi.com/articles/example002.html" },
         { "source": "毎日新聞", "url": "https://mainichi.jp/articles/example/002/" }
+      ],
+      "generatedAt": "2026-08-14T07:00:00+09:00",
+      "aiGenerated": true
+    },
+    {
+      "topicId": "2026-08-14-003",
+      "topicTitle": "セブン-イレブンの客数・客足に関する報道と『上げ底弁当』を巡る指摘",
+      "facts": "2026年2月期のコンビニ大手3社の全店売上高は、セブン-イレブンが5兆4693億円(前期比1.9%増)、ファミリーマートが3兆3002億円(同1.7%増)、ローソンが3兆223億円(同4.5%増)だった。売上規模ではセブンが引き続き最大だが、伸び率や客数の面でライバル各社に押される場面が増えていると報じられている。",
+      "developing": false,
+      "issues": [],
+      "claims": [
+        {
+          "claim": "弁当・惣菜が『上げ底』で内容量が見た目より少ないとの指摘がSNS上で拡散し、客離れの一因になっているとされる",
+          "verification": "経済メディアや消費者ブログが、容器の底上げや具材の少なさを指摘する写真・検証画像がSNS上で相次いで拡散していると報じている。一方でセブン-イレブン・ジャパンの永松文彦社長は取材に対し、内容量を意図的に減らしているとの見方を否定しており、企業側の説明とネット上の指摘は食い違ったままである。",
+          "sources": [
+            { "source": "東洋経済オンライン", "url": "https://toyokeizai.net/articles/-/834598?display=b" },
+            { "source": "集英社オンライン", "url": "https://shueisha.online/articles/-/252019" }
+          ]
+        }
+      ],
+      "sourceLinks": [
+        { "source": "東洋経済オンライン", "url": "https://toyokeizai.net/articles/-/834598?display=b" },
+        { "source": "集英社オンライン", "url": "https://shueisha.online/articles/-/252019" }
       ],
       "generatedAt": "2026-08-14T07:00:00+09:00",
       "aiGenerated": true

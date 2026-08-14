@@ -1,12 +1,12 @@
 const SHELL_CACHE = "shell-v1";
 const SHELL_FILES = [
-  "/",
-  "/index.html",
-  "/manifest.webmanifest",
-  "/icon.svg",
-  "/vendor/react.production.min.js",
-  "/vendor/react-dom.production.min.js",
-  "/vendor/babel.min.js",
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./icon.svg",
+  "./vendor/react.production.min.js",
+  "./vendor/react-dom.production.min.js",
+  "./vendor/babel.min.js",
 ];
 
 self.addEventListener("install", (event) => {
@@ -27,9 +27,10 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+  const dataDir = new URL("data/", self.registration.scope).pathname;
 
-  // /data/*.json はネットワーク優先(最新のニュースを優先し、オフライン時のみキャッシュを使う)
-  if (url.pathname.startsWith("/data/")) {
+  // data/*.json はネットワーク優先(最新のニュースを優先し、オフライン時のみキャッシュを使う)
+  if (url.pathname.startsWith(dataDir)) {
     event.respondWith(
       fetch(event.request)
         .then((res) => {

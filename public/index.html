@@ -6,8 +6,8 @@
 <title>多面ニュース解説</title>
 <meta name="description" content="毎日の主要ニュースをAIが多面的に整理し、論点と賛否をまとめて表示します。" />
 <meta name="theme-color" content="#1f2937" />
-<link rel="manifest" href="/manifest.webmanifest" />
-<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
 <style>
   :root {
     --bg: #f6f5f2;
@@ -223,9 +223,9 @@
 <body>
 <div id="root"></div>
 
-<script src="/vendor/react.production.min.js"></script>
-<script src="/vendor/react-dom.production.min.js"></script>
-<script src="/vendor/babel.min.js"></script>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="vendor/babel.min.js"></script>
 
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useCallback } = React;
@@ -382,7 +382,7 @@ function App() {
 
   const load = useCallback((dateStr) => {
     setStatus("loading");
-    fetch(`/data/${dateStr}.json`, { cache: "no-store" })
+    fetch(`data/${dateStr}.json`, { cache: "no-store" })
       .then((res) => {
         if (res.status === 404) {
           setStatus("empty");
@@ -452,7 +452,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 <script>
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker.register("sw.js").catch(() => {});
     });
   }
 </script>

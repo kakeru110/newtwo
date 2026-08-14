@@ -9,9 +9,11 @@ scripts/        収集・クラスタリング・分析パイプライン(Node.j
 public/         フロントエンド(単一HTMLのReact PWA)+ 生成された /data/*.json
   index.html      アプリ本体(React/ReactDOM/BabelはCDNを使わずpublic/vendor/に同梱)
   data/           日付ごとのニュースデータ(パイプラインが生成・コミット)
-.github/workflows/pipeline.yml   1日2回(7時・19時 JST)実行するGitHub Actions
-vercel.json      Vercel用の静的サイト設定(public/を配信)
+.github/workflows/pipeline.yml       1日2回(7時・19時 JST)ニュースを生成するGitHub Actions
+.github/workflows/deploy-pages.yml   public/の変更をGitHub Pagesへ自動デプロイするGitHub Actions
 ```
+
+フロントエンドの各パス参照(`vendor/`・`data/`・`manifest.webmanifest`・`sw.js`)はすべて相対パスにしてあります。GitHub Pagesのプロジェクトサイトは `https://<ユーザー名>.github.io/<リポジトリ名>/` のようにサブパス配信になるため、絶対パス(`/vendor/...`等)だと壊れます。
 
 ## セットアップ
 
@@ -45,9 +47,10 @@ cd public && python3 -m http.server 8000
 1. リポジトリの Settings → Secrets and variables → Actions で `ANTHROPIC_API_KEY` を登録する。
 2. `.github/workflows/pipeline.yml` は `workflow_dispatch`(手動実行)にも対応しているので、まずは Actions タブから手動実行して数日分の出力品質を確認してから、定期実行(cron)に任せることを推奨(CLAUDE.md 7章の方針どおり)。
 
-## Vercelへのデプロイ
+## GitHub Pagesへのデプロイ
 
-1. VercelでこのGitHubリポジトリをインポートする。
-2. Framework Preset は「Other」のままでよい(`vercel.json` が `public/` を配信するよう設定済み)。
-3. 環境変数の設定は不要(データ生成はGitHub Actions側で行うため、Vercelはビルド不要の静的サイトとして配信するだけ)。
-4. GitHub Actionsが `public/data/*.json` をコミットするたびに、Vercelが自動で再デプロイする。
+1. リポジトリの Settings → Pages → Build and deployment → Source を「GitHub Actions」に設定する(初回のみ、手動での一回きりの設定)。
+2. `main` ブランチに `public/` 配下の変更がpushされると、`.github/workflows/deploy-pages.yml` が自動でGitHub Pagesにデプロイする。Actionsタブから `workflow_dispatch` で手動実行も可能。
+3. 環境変数の設定は不要(データ生成はGitHub Actions側の別ワークフローで行うため、Pagesへのデプロイはビルド不要の静的配信のみ)。
+4. デプロイ後のURLは `https://<ユーザー名>.github.io/<リポジトリ名>/`(Settings → Pages に表示される)。
+5. `pipeline.yml` が `public/data/*.json` をコミット・pushするたびに、このワークフローが連鎖して再デプロイされる。

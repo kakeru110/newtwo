@@ -1,0 +1,19 @@
+{
+  "name": "multi-view-news",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "collect": "node scripts/collect.js",
+    "cluster": "node scripts/cluster.js",
+    "analyze": "node scripts/analyze.js",
+    "pipeline": "node scripts/collect.js && node scripts/cluster.js && node scripts/analyze.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "rss-parser": "^3.13.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

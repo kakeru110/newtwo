@@ -1,0 +1,72 @@
+{
+  "date": "2026-08-14",
+  "generatedAt": "2026-08-14T07:00:00+09:00",
+  "aiGenerated": true,
+  "disclaimer": "本コンテンツはAIが自動生成しています。詳細は各出典元をご確認ください。",
+  "topics": [
+    {
+      "topicId": "2026-08-14-001",
+      "topicTitle": "防衛費増額を巡る来年度予算編成",
+      "facts": "政府は来年度予算の概算要求において防衛費のさらなる増額を検討していることが関係者への取材で分かった。財源としては国債発行と増税の両論が政府内で議論されている。正式な予算案は年末の閣議決定を経て国会に提出される見通し。",
+      "issues": [
+        {
+          "issue": "防衛費増額の財源をどう確保すべきか",
+          "for": {
+            "summary": "安全保障環境の悪化を踏まえ、防衛力強化は急務であり、国債発行も含め機動的に財源を確保すべきだとする論調がある。増税による財源確保を明確にすることで、将来世代への説明責任を果たせるとの指摘もある。",
+            "sources": ["読売新聞", "産経新聞"]
+          },
+          "against": {
+            "summary": "防衛費の急激な増額が財政規律を損なうとの懸念が示されている。増税に頼れば家計負担が増すため、他の歳出削減や税収の使途見直しを優先すべきだとの主張がある。",
+            "sources": ["朝日新聞", "毎日新聞"]
+          }
+        },
+        {
+          "issue": "増額のペースと国民への説明は十分か",
+          "for": {
+            "summary": "国際情勢の緊迫化を踏まえ、迅速な意思決定が必要であり、詳細な説明は予算編成過程で順次行えば足りるとの見方がある。",
+            "sources": ["産経新聞"]
+          },
+          "against": {
+            "summary": "国民的な議論が不十分なまま既定路線化している点を問題視し、規模ありきではなく丁寧な合意形成を求める論調がある。",
+            "sources": ["毎日新聞", "NHKニュース"]
+          }
+        }
+      ],
+      "sourceLinks": [
+        { "source": "NHKニュース", "url": "https://www3.nhk.or.jp/news/example001.html" },
+        { "source": "読売新聞", "url": "https://www.yomiuri.co.jp/example/001/" },
+        { "source": "朝日新聞", "url": "https://www.asahi.com/articles/example001.html" },
+        { "source": "毎日新聞", "url": "https://mainichi.jp/articles/example/001/" },
+        { "source": "産経新聞", "url": "https://www.sankei.com/article/example001/" }
+      ],
+      "generatedAt": "2026-08-14T07:00:00+09:00",
+      "aiGenerated": true
+    },
+    {
+      "topicId": "2026-08-14-002",
+      "topicTitle": "生成AI利用に関する著作権ガイドライン改定",
+      "facts": "文化庁は生成AIと著作権の関係を整理したガイドラインの改定案を公表した。AI学習データの利用範囲や、生成物が既存著作物と類似した場合の権利侵害の判断基準について、具体例を交えて示している。パブリックコメントを経て年内の正式決定を目指す。",
+      "issues": [
+        {
+          "issue": "AI学習データの利用をどこまで許容すべきか",
+          "for": {
+            "summary": "技術革新と産業競争力の観点から、学習段階での著作物利用は原則自由とし、権利者への配慮は生成・利用段階で行うべきだとする論調がある。",
+            "sources": ["日本経済新聞", "ITmedia"]
+          },
+          "against": {
+            "summary": "クリエイターの収益機会が損なわれる懸念から、学習データの利用にも一定の許諾やオプトアウトの仕組みを設けるべきだとの主張がある。",
+            "sources": ["朝日新聞", "毎日新聞"]
+          }
+        }
+      ],
+      "sourceLinks": [
+        { "source": "日本経済新聞", "url": "https://www.nikkei.com/article/example002/" },
+        { "source": "ITmedia", "url": "https://www.itmedia.co.jp/news/example/002.html" },
+        { "source": "朝日新聞", "url": "https://www.asahi.com/articles/example002.html" },
+        { "source": "毎日新聞", "url": "https://mainichi.jp/articles/example/002/" }
+      ],
+      "generatedAt": "2026-08-14T07:00:00+09:00",
+      "aiGenerated": true
+    }
+  ]
+}

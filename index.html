@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>多面ニュース解説</title>
+<meta name="description" content="毎日の主要ニュースをAIが多面的に整理し、論点と賛否をまとめて表示します。" />
+<meta name="theme-color" content="#1f2937" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --card-bg: #ffffff;
+    --ink: #1f2430;
+    --ink-soft: #5b6472;
+    --border: #e3e1db;
+    --accent: #1f4b99;
+    --for: #1a6b4a;
+    --for-bg: #eaf6ef;
+    --against: #a4392a;
+    --against-bg: #fbeeec;
+    --claim-badge: #a86a00;
+    --claim-bg: #fff6e5;
+    --developing: #a4392a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  header.site {
+    background: var(--ink);
+    color: #fff;
+    padding: 18px 16px;
+  }
+  header.site h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  header.site p {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    color: #c7ccd6;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 90px;
+  }
+  .date-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .date-nav button {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .date-nav button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .date-nav .current-date {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .state-message {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 48px 16px;
+    font-size: 0.95rem;
+  }
+  .topic-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .topic-card-header {
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .topic-card-header:hover { background: #fbfaf8; }
+  .topic-card-header h2 {
+    margin: 0 0 6px;
+    font-size: 1.02rem;
+    font-weight: 700;
+  }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .badge.issue { color: var(--accent); border-color: var(--accent); }
+  .badge.claim { color: var(--claim-badge); border-color: var(--claim-badge); }
+  .badge.developing { color: var(--developing); border-color: var(--developing); }
+  .chevron {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+    color: var(--ink-soft);
+  }
+  .chevron.open { transform: rotate(90deg); }
+  .topic-detail {
+    padding: 0 16px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    margin: 18px 0 8px;
+  }
+  .facts-box p { margin: 0; }
+  .developing-banner {
+    background: var(--against-bg);
+    color: var(--against);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    margin: 10px 0 0;
+  }
+  .issue-block {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .issue-block .issue-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+  }
+  .stance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 520px) {
+    .stance-grid { grid-template-columns: 1fr; }
+  }
+  .stance {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  .stance.for { background: var(--for-bg); }
+  .stance.against { background: var(--against-bg); }
+  .stance-label {
+    font-weight: 700;
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+  }
+  .stance.for .stance-label { color: var(--for); }
+  .stance.against .stance-label { color: var(--against); }
+  .stance p { margin: 0 0 8px; }
+  .stance.empty { color: var(--ink-soft); font-style: italic; }
+  .source-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .source-badge {
+    font-size: 0.7rem;
+    background: rgba(0,0,0,0.06);
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+  .claim-block {
+    border: 1px solid var(--claim-badge);
+    background: var(--claim-bg);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+  .claim-block .claim-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .claim-block .verification-label {
+    font-size: 0.72rem;
+    color: var(--claim-badge);
+    font-weight: 700;
+    margin: 6px 0 4px;
+  }
+  .source-links { padding-left: 0; margin: 0; list-style: none; }
+  .source-links li { margin-bottom: 6px; font-size: 0.85rem; }
+  .source-links a { color: var(--accent); text-decoration: none; }
+  .source-links a:hover { text-decoration: underline; }
+  footer.disclaimer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ink);
+    color: #d8dbe2;
+    font-size: 0.72rem;
+    text-align: center;
+    padding: 10px 12px;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="/vendor/react.production.min.js"></script>
+<script src="/vendor/react-dom.production.min.js"></script>
+<script src="/vendor/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback } = React;
+
+function toDateStr(d) {
+  // JST基準の YYYY-MM-DD を返す
+  const jst = new Date(d.getTime() + (9 * 60 - d.getTimezoneOffset()) * 60000);
+  return jst.toISOString().slice(0, 10);
+}
+
+function addDays(dateStr, delta) {
+  const d = new Date(dateStr + "T00:00:00+09:00");
+  d.setUTCDate(d.getUTCDate() + delta);
+  return toDateStr(d);
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(dateStr + "T00:00:00+09:00");
+  const weekday = ["日", "月", "火", "水", "木", "金", "土"][d.getUTCDay()];
+  return `${dateStr}(${weekday})`;
+}
+
+function TopicBadges({ topic }) {
+  const badges = [];
+  if (topic.developing) badges.push({ key: "developing", label: "進行中", cls: "developing" });
+  if (topic.issues && topic.issues.length > 0) badges.push({ key: "issue", label: `論点${topic.issues.length}件`, cls: "issue" });
+  if (topic.claims && topic.claims.length > 0) badges.push({ key: "claim", label: "未検証情報あり", cls: "claim" });
+  if (badges.length === 0) return null;
+  return (
+    <div className="badges">
+      {badges.map((b) => (
+        <span key={b.key} className={`badge ${b.cls}`}>{b.label}</span>
+      ))}
+    </div>
+  );
+}
+
+function Stance({ label, stance, cls }) {
+  const hasContent = stance && stance.summary;
+  return (
+    <div className={`stance ${cls} ${hasContent ? "" : "empty"}`}>
+      <div className="stance-label">{label}</div>
+      {hasContent ? (
+        <React.Fragment>
+          <p>{stance.summary}</p>
+          <div className="source-badges">
+            {(stance.sources || []).map((s, i) => (
+              <span className="source-badge" key={i}>{s}</span>
+            ))}
+          </div>
+        </React.Fragment>
+      ) : (
+        <p>この立場の報道は見つかりませんでした</p>
+      )}
+    </div>
+  );
+}
+
+function TopicDetail({ topic }) {
+  return (
+    <div className="topic-detail">
+      <div className="section-label">事実</div>
+      <div className="facts-box">
+        <p>{topic.facts}</p>
+        {topic.developing && (
+          <div className="developing-banner">
+            この話題は状況が変わりつつあります。掲載内容は生成時点(
+            {new Date(topic.generatedAt).toLocaleString("ja-JP")}
+            )の情報です。
+          </div>
+        )}
+      </div>
+
+      {topic.issues && topic.issues.length > 0 && (
+        <React.Fragment>
+          <div className="section-label">論点</div>
+          {topic.issues.map((issue, i) => (
+            <div className="issue-block" key={i}>
+              <div className="issue-title">{issue.issue}</div>
+              <div className="stance-grid">
+                <Stance label="賛成・肯定する立場" stance={issue.for} cls="for" />
+                <Stance label="反対・懸念する立場" stance={issue.against} cls="against" />
+              </div>
+            </div>
+          ))}
+        </React.Fragment>
+      )}
+
+      {topic.claims && topic.claims.length > 0 && (
+        <React.Fragment>
+          <div className="section-label">ネット上等での指摘(未検証)</div>
+          {topic.claims.map((claim, i) => (
+            <div className="claim-block" key={i}>
+              <div className="claim-title">
+                <span className="badge claim">未検証</span>{" "}
+                {claim.claim}
+              </div>
+              <div className="verification-label">調査結果</div>
+              <p style={{ margin: 0 }}>{claim.verification}</p>
+              <div className="source-badges" style={{ marginTop: 8 }}>
+                {(claim.sources || []).map((s, i2) => (
+                  <a
+                    className="source-badge"
+                    key={i2}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    {s.source}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </React.Fragment>
+      )}
+
+      <div className="section-label">出典</div>
+      <ul className="source-links">
+        {(topic.sourceLinks || []).map((s, i) => (
+          <li key={i}>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">
+              {s.source}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function TopicCard({ topic }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="topic-card">
+      <div className="topic-card-header" onClick={() => setOpen((o) => !o)}>
+        <div>
+          <h2>{topic.topicTitle}</h2>
+          <TopicBadges topic={topic} />
+        </div>
+        <span className={`chevron ${open ? "open" : ""}`}>▶</span>
+      </div>
+      {open && <TopicDetail topic={topic} />}
+    </div>
+  );
+}
+
+function App() {
+  const [selectedDate, setSelectedDate] = useState(() => toDateStr(new Date()));
+  const [status, setStatus] = useState("loading"); // loading | ok | empty | error
+  const [data, setData] = useState(null);
+  const today = toDateStr(new Date());
+
+  const load = useCallback((dateStr) => {
+    setStatus("loading");
+    fetch(`/data/${dateStr}.json`, { cache: "no-store" })
+      .then((res) => {
+        if (res.status === 404) {
+          setStatus("empty");
+          return null;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        if (json) {
+          setData(json);
+          setStatus("ok");
+        }
+      })
+      .catch(() => setStatus("error"));
+  }, []);
+
+  useEffect(() => {
+    load(selectedDate);
+  }, [selectedDate, load]);
+
+  return (
+    <React.Fragment>
+      <header className="site">
+        <h1>多面ニュース解説</h1>
+        <p>AIがニュースを収集し、事実・論点・賛否を整理して表示します</p>
+      </header>
+      <main>
+        <div className="date-nav">
+          <button onClick={() => setSelectedDate((d) => addDays(d, -1))}>← 前日</button>
+          <span className="current-date">{formatDateLabel(selectedDate)}</span>
+          <button
+            onClick={() => setSelectedDate((d) => addDays(d, 1))}
+            disabled={selectedDate >= today}
+          >
+            翌日 →
+          </button>
+        </div>
+
+        {status === "loading" && <div className="state-message">読み込み中...</div>}
+        {status === "error" && (
+          <div className="state-message">データの取得に失敗しました。時間を置いて再度お試しください。</div>
+        )}
+        {status === "empty" && (
+          <div className="state-message">この日のデータはまだありません。</div>
+        )}
+        {status === "ok" && data && (
+          <React.Fragment>
+            {data.topics.length === 0 ? (
+              <div className="state-message">この日は複数媒体で報じられたトピックが見つかりませんでした。</div>
+            ) : (
+              data.topics.map((topic) => <TopicCard key={topic.topicId} topic={topic} />)
+            )}
+          </React.Fragment>
+        )}
+      </main>
+      <footer className="disclaimer">
+        本コンテンツはAIが自動生成しています。詳細は各出典元をご確認ください。
+      </footer>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

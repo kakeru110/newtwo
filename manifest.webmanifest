@@ -1,0 +1,14 @@
+{
+  "name": "多面ニュース解説",
+  "short_name": "多面ニュース",
+  "description": "毎日の主要ニュースをAIが多面的に整理し、論点と賛否をまとめて表示します。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f5f2",
+  "theme_color": "#1f2937",
+  "lang": "ja",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

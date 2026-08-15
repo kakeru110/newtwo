@@ -1,17 +1,18 @@
 // CLAUDE.md 4.1: 各RSSを取得し {title, summary, link, source, pubDate} に正規化する。
-// 直近24時間分のみを対象とする。本文スクレイピングは行わない
-// (Yahoo!ニュース経由の記事もld+jsonのメタデータ(見出し・リード文)のみを読む)。
+// 直近24時間分のみを対象とする。本文スクレイピングは行わない(RSSに含まれる
+// タイトル・リード文のみを読む。個別記事ページへのアクセスは行わない)。
 
 import Parser from "rss-parser";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { DIRECT_FEEDS, YAHOO_TOPIC_FEEDS } from "./feeds.config.js";
+import { DIRECT_FEEDS } from "./feeds.config.js";
 
 const HOURS_WINDOW = 24;
-const USER_AGENT = "Mozilla/5.0";
-const YAHOO_CONCURRENCY = 4;
+// robots.txtでAI系クローラーを制限していない媒体のみをRSSの範囲内で読みに行うため、
+// ブラウザを装わず素性を明かすUser-Agentを使う。
+const USER_AGENT = "MultiViewNewsBot/0.1 (+https://github.com/kakeru110/newtwo)";
 const pExecFile = promisify(execFile);
 
 const parser = new Parser({
@@ -19,8 +20,8 @@ const parser = new Parser({
   timeout: 15000,
 });
 
-// NHK・朝日・毎日などはNode(undici)のTLS/HTTPフィンガープリントをボット判定して
-// 403を返すことがある(公開RSSそのものへのアクセス制限ではない)。
+// 媒体によってはNode(undici)のTLS/HTTPフィンガープリントをボット判定して403を
+// 返すことがある(RSS自体へのアクセス制限ではなく、undiciクライアント特有の問題)。
 // その場合のみ、curlコマンドでのフェッチにフォールバックする。
 async function fetchTextWithFallback(url) {
   try {
@@ -64,83 +65,6 @@ async function collectDirectFeed({ source, url }) {
   }
 }
 
-// <comments> は https://news.yahoo.co.jp/articles/<hash>/comments 形式。
-// 末尾の /comments を外すと、schema.org メタデータ付きの記事ページURLになる。
-function articleUrlFromItem(item) {
-  if (item.comments) {
-    return item.comments.replace(/\/comments\/?$/, "");
-  }
-  return item.link || "";
-}
-
-// Yahoo!ニュース記事ページの ld+json (NewsArticle) から
-// 見出し・リード文・配信元(新聞社/通信社)のみを取得する。本文は読まない。
-async function fetchYahooArticleMeta(articleUrl) {
-  const html = await fetchTextWithFallback(articleUrl);
-  const match = html.match(
-    /<script type="application\/ld\+json">(\{[^]*?"@type":"NewsArticle"[^]*?\})<\/script>/
-  );
-  if (!match) throw new Error("NewsArticle ld+json not found");
-  const data = JSON.parse(match[1]);
-  return {
-    title: data.headline || "",
-    summary: data.description || "",
-    source: data.author?.name || "Yahoo!ニュース",
-    pubDate: data.datePublished || "",
-  };
-}
-
-async function mapWithConcurrency(items, limit, fn) {
-  const results = new Array(items.length);
-  let i = 0;
-  async function worker() {
-    while (i < items.length) {
-      const idx = i++;
-      results[idx] = await fn(items[idx]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
-}
-
-async function collectYahooFeed({ category, url }) {
-  let feed;
-  try {
-    const xml = await fetchTextWithFallback(url);
-    feed = await parser.parseString(xml);
-  } catch (err) {
-    console.warn(`[collect] Yahoo!ニュース(${category}) の取得に失敗: ${err.message}`);
-    return [];
-  }
-
-  const candidates = feed.items.filter((item) => withinWindow(item.isoDate || item.pubDate));
-  const resolved = await mapWithConcurrency(candidates, YAHOO_CONCURRENCY, async (item) => {
-    const articleUrl = articleUrlFromItem(item);
-    if (!articleUrl) return null;
-    try {
-      const meta = await fetchYahooArticleMeta(articleUrl);
-      return {
-        title: meta.title || item.title || "",
-        summary: meta.summary || "",
-        link: articleUrl,
-        source: meta.source,
-        pubDate: meta.pubDate || item.isoDate || item.pubDate || "",
-      };
-    } catch {
-      // メタデータが取れない場合はRSS見出しのみで最低限の情報を残す
-      return {
-        title: item.title || "",
-        summary: "",
-        link: item.link || articleUrl,
-        source: "Yahoo!ニュース",
-        pubDate: item.isoDate || item.pubDate || "",
-      };
-    }
-  });
-
-  return resolved.filter((a) => a && a.title && a.link && withinWindow(a.pubDate));
-}
-
 function dedupe(articles) {
   const seen = new Set();
   const out = [];
@@ -154,12 +78,9 @@ function dedupe(articles) {
 }
 
 async function main() {
-  const directResults = await Promise.all(DIRECT_FEEDS.map(collectDirectFeed));
-  const yahooResults = await Promise.all(YAHOO_TOPIC_FEEDS.map(collectYahooFeed));
+  const results = await Promise.all(DIRECT_FEEDS.map(collectDirectFeed));
 
-  const all = dedupe([...directResults.flat(), ...yahooResults.flat()]).sort(
-    (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
-  );
+  const all = dedupe(results.flat()).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
   const outDir = path.join(process.cwd(), ".cache");
   await mkdir(outDir, { recursive: true });
